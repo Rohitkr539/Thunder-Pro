@@ -1,0 +1,28 @@
+# Netlify build + routing config for JSCraft (Thunder-Pro)
+#
+# Note: When importing the repo into Netlify, set "Base directory" to `frontend`.
+# Because of that, all paths in this file are relative to /frontend.
+
+[build]
+  command   = "yarn install && yarn build"
+  publish   = "build"
+
+# ─── API proxy ─────────────────────────────────────────────────────────────
+# All /api/* calls from the frontend are transparently forwarded to the
+# Render-hosted FastAPI backend. This keeps the browser on a single origin,
+# so there are zero CORS issues.
+#
+# 👉 Replace the URL below with YOUR Render backend URL after you deploy it.
+#    Example:  https://thunder-pro-backend.onrender.com/api/:splat
+[[redirects]]
+  from   = "/api/*"
+  to     = "https://REPLACE-WITH-YOUR-RENDER-URL.onrender.com/api/:splat"
+  status = 200
+  force  = true
+
+# ─── SPA fallback ──────────────────────────────────────────────────────────
+# Any non-asset, non-API path falls back to index.html so React Router works.
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200

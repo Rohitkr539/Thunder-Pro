@@ -12,9 +12,10 @@ import quickjs
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
-db = client[os.environ['DB_NAME']]
+mongo_url = os.environ.get('MONGO_URL', '').strip()
+db_name = os.environ.get('DB_NAME', '').strip()
+client = AsyncIOMotorClient(mongo_url) if mongo_url else None
+db = client[db_name] if (client and db_name) else None
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -189,4 +190,5 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("shutdown")
 async def shutdown_db_client():
-    client.close()
+    if client is not None:
+        client.close()

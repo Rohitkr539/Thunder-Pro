@@ -150,7 +150,34 @@ Open **http://localhost:3000** — the full JSCraft UI loads.
 
 ---
 
-## 🌐 API Reference
+## 🌍 Deploying for free — Render (backend) + Netlify (frontend)
+
+> Netlify cannot run a Python backend on its own. We host the FastAPI backend on Render's free tier and the React frontend on Netlify. Netlify transparently proxies `/api/*` to the Render backend — so the browser only ever talks to one origin (no CORS headaches).
+
+### 1. Backend → Render
+1. [render.com](https://render.com) → **New +** → **Web Service** → connect this GitHub repo.
+2. Settings:
+   - **Root Directory:** `backend`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `uvicorn server:app --host 0.0.0.0 --port $PORT`
+3. Env vars (all optional — leave blank to skip MongoDB):
+   - `CORS_ORIGINS` = `*` (or your Netlify URL once you have it)
+   - `MONGO_URL`, `DB_NAME` — only if you want to attach MongoDB later
+4. Click **Create Web Service**, copy the public URL (e.g. `https://thunder-pro-backend.onrender.com`).
+
+### 2. Frontend → Netlify
+A `frontend/netlify.toml` is already included in this repo. Just:
+1. Open the file `frontend/netlify.toml` and replace `REPLACE-WITH-YOUR-RENDER-URL.onrender.com` with the URL from step 1, then push the change to GitHub.
+2. [netlify.com](https://netlify.com) → **Add new site** → **Import existing project** → pick this repo.
+3. Netlify will auto-detect the build settings from `netlify.toml` (Base directory: `frontend`, Publish: `frontend/build`).
+4. Click **Deploy site**.
+
+### 3. Verify
+Open the Netlify URL → click **⚡ Hackathon** tab → **▶ Run All Tests** → should show **100 / 100**.
+
+---
+
+
 
 All endpoints are prefixed with `/api`.
 
