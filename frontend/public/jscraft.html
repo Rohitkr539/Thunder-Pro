@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSCraft — Learn JavaScript</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  [data-theme="dark"] {
+    --bg: #0a0a0f; --surface: #111118; --card: #16161f; --border: #2a2a3a;
+    --accent: #f7c948; --accent2: #4fffb0; --accent3: #ff6b6b;
+    --text: #e8e8f0; --muted: #7070a0; --code-bg: #0d0d16;
+    --code-text: #4fffb0; --noise-op: 0.4;
+  }
+  [data-theme="light"] {
+    --bg: #fbfaf5; --surface: #f1ede0; --card: #ffffff; --border: #d8d3c0;
+    --accent: #b8860b; --accent2: #0d8a5c; --accent3: #c0392b;
+    --text: #1a1a25; --muted: #6b6b80; --code-bg: #f4f0e3;
+    --code-text: #0d8a5c; --noise-op: 0.08;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: 'Syne', sans-serif; min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E"); pointer-events: none; z-index: 0; opacity: var(--noise-op); }
+  nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; align-items:center; justify-content:space-between; padding:1rem 1.5rem; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+  .nav-logo { font-family:'Space Mono',monospace; font-size:1.05rem; font-weight:700; color: var(--accent); letter-spacing:-1px; cursor:pointer; }
+  .nav-logo span { color: var(--accent2); }
+  .nav-links { display:flex; gap:0.3rem; flex-wrap:wrap; }
+  .nav-links button { background:none; border:none; color: var(--muted); font-family:'Syne',sans-serif; font-size:0.78rem; font-weight:600; cursor:pointer; padding:0.4rem 0.65rem; border-radius:6px; transition: all 0.2s; }
+  .nav-links button:hover, .nav-links button.active { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .nav-right { display:flex; align-items:center; gap:0.6rem; }
+  .nav-progress { font-family:'Space Mono',monospace; font-size:0.68rem; color: var(--accent2); padding:0.3rem 0.7rem; border:1px solid var(--accent2); border-radius:20px; white-space:nowrap; }
+  .theme-toggle { background:none; border:1px solid var(--border); color: var(--text); padding:0.35rem 0.55rem; border-radius:20px; cursor:pointer; font-size:1rem; line-height:1; transition: all 0.25s; width: 34px; height: 32px; display:inline-flex; align-items:center; justify-content:center; }
+  .theme-toggle:hover { border-color: var(--accent); transform: scale(1.08); }
+
+  #hero { min-height:100vh; display:flex; flex-direction:column; justify-content:center; padding:8rem 2rem 4rem; position:relative; overflow:hidden; }
+  .hero-glow { position:absolute; width:700px; height:700px; border-radius:50%; background: radial-gradient(circle, color-mix(in srgb, var(--accent) 12%, transparent) 0%, transparent 70%); top:50%; left:50%; transform:translate(-50%,-50%); pointer-events:none; }
+  .hero-grid { position:absolute; inset:0; pointer-events:none; background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px); background-size: 60px 60px; opacity: 0.18; }
+  .hero-badge { display:inline-flex; align-items:center; gap:0.5rem; background: color-mix(in srgb, var(--accent2) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 35%, transparent); color: var(--accent2); padding:0.35rem 1rem; border-radius:20px; font-family:'Space Mono',monospace; font-size:0.7rem; letter-spacing:1px; margin-bottom:2rem; width:fit-content; position:relative; z-index:1; }
+  .hero-badge::before { content: '▶'; font-size:0.6rem; }
+  .hero-title { font-size: clamp(2.8rem, 9vw, 7rem); font-weight:800; line-height:0.92; letter-spacing:-4px; margin-bottom:1.5rem; position:relative; z-index:1; }
+  .hero-title .l2 { color: var(--accent); display:block; }
+  .hero-title .l3 { color: var(--muted); display:block; font-size:0.55em; letter-spacing:-1px; font-weight:600; margin-top:0.4rem; }
+  .hero-desc { font-size:1rem; color: var(--muted); max-width:540px; line-height:1.75; margin-bottom:2.5rem; position:relative; z-index:1; }
+  .hero-cta { display:flex; gap:1rem; flex-wrap:wrap; position:relative; z-index:1; }
+  .btn-primary { background: var(--accent); color: var(--bg); border:none; padding:0.85rem 2rem; border-radius:8px; font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:700; cursor:pointer; transition:all 0.2s; letter-spacing:0.5px; }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 35%, transparent); filter: brightness(1.08); }
+  .btn-ghost { background:none; border:1px solid var(--border); color: var(--text); padding:0.85rem 2rem; border-radius:8px; font-family:'Syne',sans-serif; font-size:0.85rem; font-weight:600; cursor:pointer; transition:all 0.2s; }
+  .btn-ghost:hover { border-color: var(--accent2); color: var(--accent2); }
+  .hero-stats { display:flex; gap:3rem; margin-top:4rem; padding-top:2rem; border-top:1px solid var(--border); position:relative; z-index:1; flex-wrap:wrap; }
+  .stat-num { font-family:'Space Mono',monospace; font-size:1.7rem; font-weight:700; color: var(--accent); }
+  .stat-label { font-size:0.72rem; color: var(--muted); margin-top:0.2rem; letter-spacing:0.5px; }
+
+  section { padding: 5rem 2rem; }
+  #lectures, #content-view, #playground, #hackathon, #cheatsheet, #quiz-section, #notes-section, #roadmap { display:none; }
+  .progress-section { padding:1.2rem 2rem; background: var(--surface); border-bottom:1px solid var(--border); }
+  .progress-label { font-size:0.7rem; color: var(--muted); font-family:'Space Mono',monospace; margin-bottom:0.5rem; }
+  .progress-bar-track { background: var(--border); border-radius:20px; height:6px; overflow:hidden; }
+  .progress-bar-fill { height:100%; border-radius:20px; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.6s; width:0%; }
+  .section-header { margin-bottom:2.5rem; }
+  .section-tag { font-family:'Space Mono',monospace; font-size:0.66rem; letter-spacing:2px; color: var(--accent2); text-transform:uppercase; margin-bottom:0.8rem; }
+  .section-title { font-size: 2.2rem; font-weight:800; letter-spacing:-2px; }
+  .section-title span { color: var(--accent); }
+
+  .lecture-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(290px,1fr)); gap:1.3rem; }
+  .lecture-card { background: var(--card); border:1px solid var(--border); border-radius:16px; padding:1.6rem; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden; }
+  .lecture-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transform: scaleX(0); transform-origin:left; transition: transform 0.3s; }
+  .lecture-card:hover::before { transform: scaleX(1); }
+  .lecture-card:hover { border-color: color-mix(in srgb, var(--accent) 30%, transparent); transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.15); }
+  .lecture-card.completed { border-color: color-mix(in srgb, var(--accent2) 35%, transparent); }
+  .lecture-card.completed::before { transform: scaleX(1); background: var(--accent2); }
+  .card-num { font-family:'Space Mono',monospace; font-size:0.66rem; color: var(--muted); margin-bottom:0.8rem; letter-spacing:1px; }
+  .card-icon { font-size:1.8rem; margin-bottom:0.8rem; }
+  .card-title { font-size:1.05rem; font-weight:700; margin-bottom:0.4rem; letter-spacing:-0.4px; }
+  .card-desc { font-size:0.78rem; color: var(--muted); line-height:1.6; }
+  .card-topics { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.8rem; }
+  .topic-chip { font-family:'Space Mono',monospace; font-size:0.6rem; padding:0.18rem 0.5rem; background: color-mix(in srgb, var(--accent) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); border-radius:4px; }
+  .card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:1.2rem; padding-top:0.85rem; border-top:1px solid var(--border); }
+  .card-status { font-size:0.7rem; font-family:'Space Mono',monospace; color: var(--muted); }
+  .card-status.done { color: var(--accent2); }
+  .card-arrow { color: var(--accent); font-size:1rem; }
+
+  .content-layout { display:grid; grid-template-columns: 260px 1fr; gap:2rem; max-width:1200px; margin: 5rem auto 0; padding: 0 1rem; }
+  .content-sidebar { position: sticky; top:5.5rem; height:fit-content; }
+  .sidebar-lec-title { font-size:0.95rem; font-weight:700; margin-bottom:1rem; color: var(--accent); }
+  .sidebar-toc { list-style:none; display:flex; flex-direction:column; gap:0.25rem; margin-bottom:1.5rem; }
+  .sidebar-toc li { font-size:0.76rem; color: var(--muted); padding:0.45rem 0.75rem; border-radius:6px; cursor:pointer; border-left:2px solid transparent; }
+  .sidebar-toc li:hover { color: var(--text); background: var(--card); border-left-color: var(--accent); }
+  .content-main { background: var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+  .content-header { padding:1.8rem 2.2rem; border-bottom:1px solid var(--border); background: linear-gradient(135deg, var(--surface), var(--card)); }
+  .content-lec-num { font-family:'Space Mono',monospace; font-size:0.66rem; color: var(--accent2); letter-spacing:2px; margin-bottom:0.5rem; }
+  .content-lec-title { font-size:1.65rem; font-weight:800; letter-spacing:-1px; }
+  .content-body { padding:2rem 2.2rem; max-height: 62vh; overflow-y:auto; line-height:1.85; font-size:0.88rem; color: var(--text); }
+  .content-body h2 { font-size:1.2rem; font-weight:700; margin:1.8rem 0 0.7rem; letter-spacing:-0.5px; padding-left:0.9rem; border-left:3px solid var(--accent); }
+  .content-body h2:first-child { margin-top:0; }
+  .content-body p { margin-bottom:1rem; }
+  .content-body ul { padding-left:1.5rem; margin-bottom:1rem; }
+  .content-body li { margin-bottom:0.35rem; }
+  .content-body strong { color: var(--accent); }
+  .content-body pre { background: var(--code-bg); border:1px solid var(--border); border-radius:8px; padding:1.1rem 1.4rem; overflow-x:auto; margin:1rem 0; }
+  .content-body code { font-family:'JetBrains Mono',monospace; font-size:0.78rem; color: var(--code-text); }
+  .info-box, .warn-box, .tip-box { padding:0.85rem 1.2rem; border-radius:8px; margin:1rem 0; font-size:0.82rem; }
+  .info-box { background: color-mix(in srgb, var(--accent) 8%, transparent); border:1px solid color-mix(in srgb, var(--accent) 22%, transparent); }
+  .info-box::before { content:'💡 '; }
+  .warn-box { background: color-mix(in srgb, var(--accent3) 8%, transparent); border:1px solid color-mix(in srgb, var(--accent3) 22%, transparent); }
+  .warn-box::before { content:'⚠️ '; }
+  .tip-box { background: color-mix(in srgb, var(--accent2) 8%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 22%, transparent); }
+  .tip-box::before { content:'✅ '; }
+  .content-nav { display:flex; gap:1rem; padding:1.2rem 2.2rem; border-top:1px solid var(--border); justify-content:space-between; align-items:center; }
+  .mark-done-btn { background: color-mix(in srgb, var(--accent2) 12%, transparent); border:1px solid color-mix(in srgb, var(--accent2) 35%, transparent); color: var(--accent2); padding:0.55rem 1.3rem; border-radius:6px; font-family:'Syne',sans-serif; font-size:0.78rem; font-weight:700; cursor:pointer; }
+  .mark-done-btn.done { background: color-mix(in srgb, var(--accent2) 22%, transparent); }
+
+  .editor-container { max-width:1100px; margin: 4rem auto 0; }
+  .editor-layout { display:grid; grid-template-columns: 1fr 1fr; gap:1.4rem; margin-top:1.6rem; }
+  .editor-panel { background: var(--code-bg); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+  .editor-topbar { display:flex; align-items:center; justify-content:space-between; padding:0.7rem 1.1rem; background: var(--card); border-bottom:1px solid var(--border); }
+  .editor-dots { display:flex; gap:6px; }
+  .e-dot { width:10px; height:10px; border-radius:50%; }
+  .d-red { background:#ff5f57; } .d-yellow { background:#ffbd2e; } .d-green { background:#28c840; }
+  .editor-label { font-family:'Space Mono',monospace; font-size:0.66rem; color: var(--muted); letter-spacing:1px; }
+  .run-btn { background: var(--accent); color: var(--bg); border:none; padding:0.38rem 0.9rem; border-radius:6px; font-family:'Space Mono',monospace; font-size:0.68rem; font-weight:700; cursor:pointer; }
+  #code-editor, #hack-code { width:100%; min-height:340px; background:transparent; border:none; outline:none; padding:1.1rem 1.2rem; font-family:'JetBrains Mono',monospace; font-size:0.8rem; color: var(--code-text); resize:vertical; line-height:1.7; }
+  #output-panel, #hack-output { min-height:340px; padding:1.1rem 1.2rem; font-family:'JetBrains Mono',monospace; font-size:0.8rem; line-height:1.7; overflow-y:auto; white-space:pre-wrap; color: var(--text); }
+  .output-line.error { color: var(--accent3); }
+  .output-line.info { color: var(--muted); font-style:italic; }
+  .engine-toggle { display:inline-flex; align-items:center; gap:0.4rem; padding:0.4rem 0.8rem; background: var(--card); border:1px solid var(--border); border-radius:8px; font-family:'Space Mono',monospace; font-size:0.7rem; color: var(--muted); cursor:pointer; }
+  .challenges-strip { display:flex; gap:0.7rem; overflow-x:auto; padding:0.5rem 0 1rem; }
+  .challenge-pill { flex-shrink:0; background: var(--card); border:1px solid var(--border); border-radius:8px; padding:0.55rem 1rem; cursor:pointer; font-size:0.76rem; white-space:nowrap; transition:all 0.2s; }
+  .challenge-pill:hover { border-color: var(--accent); color: var(--accent); }
+
+  .hack-wrap { max-width:1100px; margin: 4rem auto 0; }
+  .hack-hero-card { background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), color-mix(in srgb, var(--accent2) 5%, transparent)); border:1px solid var(--border); border-radius:16px; padding:1.6rem 1.8rem; margin-top:1.5rem; display:flex; gap:1.5rem; align-items:center; flex-wrap:wrap; justify-content:space-between; }
+  .hack-engine { font-family:'Space Mono',monospace; font-size:0.76rem; color: var(--accent2); line-height:1.7; }
+  .hack-engine strong { color: var(--accent); }
+  .hack-score-pill { font-family:'Space Mono',monospace; font-size:0.95rem; font-weight:700; padding:0.5rem 1.2rem; border:1px solid var(--accent); color: var(--accent); border-radius:20px; min-width:100px; text-align:center; }
+  .hack-score-pill.pass { border-color: var(--accent2); color: var(--accent2); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
+  .hack-tests { margin-top:2rem; display:grid; gap:1rem; }
+  .hack-test-card { background: var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .hack-test-card.pass { border-color: color-mix(in srgb, var(--accent2) 45%, transparent); }
+  .hack-test-card.fail { border-color: color-mix(in srgb, var(--accent3) 45%, transparent); }
+  .hack-test-head { display:flex; justify-content:space-between; align-items:center; padding:1rem 1.4rem; background: var(--surface); border-bottom:1px solid var(--border); }
+  .hack-test-title { font-weight:700; font-size:0.92rem; }
+  .hack-test-num { font-family:'Space Mono',monospace; font-size:0.65rem; color: var(--muted); margin-right:0.6rem; }
+  .hack-test-status { font-family:'Space Mono',monospace; font-size:0.7rem; padding:0.28rem 0.75rem; border-radius:20px; }
+  .hack-test-status.pending { color: var(--muted); border:1px solid var(--border); }
+  .hack-test-status.pass { color: var(--accent2); border:1px solid var(--accent2); background: color-mix(in srgb, var(--accent2) 10%, transparent); }
+  .hack-test-status.fail { color: var(--accent3); border:1px solid var(--accent3); background: color-mix(in srgb, var(--accent3) 10%, transparent); }
+  .hack-test-body { display:grid; grid-template-columns: 1fr 1fr; gap:1px; background: var(--border); }
+  @media (max-width:700px) { .hack-test-body { grid-template-columns: 1fr; } }
+  .hack-test-pane { background: var(--code-bg); padding:1rem 1.2rem; }
+  .hack-pane-label { font-family:'Space Mono',monospace; font-size:0.6rem; color: var(--muted); letter-spacing:1.2px; margin-bottom:0.5rem; text-transform:uppercase; display:block; }
+  .hack-pane-code { font-family:'JetBrains Mono',monospace; font-size:0.76rem; color: var(--code-text); line-height:1.65; white-space:pre-wrap; word-break:break-word; }
+  .hack-pane-code.expected { color: var(--accent); }
+  .hack-pane-code.actual { color: var(--text); }
+  .hack-pane-code.actual.diff { color: var(--accent3); }
+  .hack-custom { margin-top:2.5rem; background: var(--card); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .hack-custom-head { padding:1rem 1.4rem; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background: var(--surface); flex-wrap:wrap; gap:0.6rem; }
+  .hack-custom-grid { display:grid; grid-template-columns: 1fr 1fr; gap:1px; background: var(--border); }
+  @media (max-width:800px) { .hack-custom-grid { grid-template-columns: 1fr; } }
+  .hack-custom-pane { background: var(--code-bg); }
+  .hack-custom-pane > div:first-child { padding:0.7rem 1.2rem 0; }
+
+  .cheat-grid { display:grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap:1rem; margin-top:1.5rem; }
+  .cheat-card { background: var(--card); border:1px solid var(--border); border-radius:12px; padding:1.2rem; }
+  .cheat-card:hover { border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .cheat-title { font-family:'Space Mono',monospace; font-size:0.66rem; color: var(--accent); letter-spacing:1px; margin-bottom:0.6rem; text-transform:uppercase; }
+  .cheat-code { font-family:'JetBrains Mono',monospace; font-size:0.74rem; color: var(--code-text); line-height:1.85; white-space:pre; overflow-x:auto; }
+
+  .quiz-card { max-width:680px; margin: 2rem auto 0; background: var(--card); border:1px solid var(--border); border-radius:16px; padding:2rem; }
+  .quiz-progress { height:4px; background: var(--border); border-radius:4px; margin-bottom:1.5rem; overflow:hidden; }
+  .quiz-progress-fill { height:100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); transition: width 0.4s; }
+  .quiz-q-num { font-family:'Space Mono',monospace; font-size:0.66rem; color: var(--muted); margin-bottom:0.7rem; }
+  .quiz-question { font-size:1rem; font-weight:700; margin-bottom:1.3rem; line-height:1.55; }
+  .quiz-options { display:flex; flex-direction:column; gap:0.5rem; }
+  .quiz-option { background: var(--surface); border:1px solid var(--border); border-radius:8px; padding:0.8rem 1.1rem; cursor:pointer; font-size:0.84rem; text-align:left; color: var(--text); font-family:'Syne',sans-serif; transition:all 0.2s; }
+  .quiz-option:hover:not(:disabled) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .quiz-option.correct { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 12%, transparent); color: var(--accent2); }
+  .quiz-option.wrong { border-color: var(--accent3); background: color-mix(in srgb, var(--accent3) 12%, transparent); color: var(--accent3); }
+  .quiz-feedback { margin-top:1rem; font-size:0.82rem; padding:0.7rem 1rem; border-radius:8px; display:none; line-height:1.6; }
+  .quiz-feedback.show { display:block; }
+  .quiz-feedback.correct { background: color-mix(in srgb, var(--accent2) 10%, transparent); color: var(--accent2); }
+  .quiz-feedback.wrong { background: color-mix(in srgb, var(--accent3) 10%, transparent); color: var(--accent3); }
+  .quiz-nav { display:flex; justify-content:space-between; align-items:center; margin-top:1.4rem; }
+  .quiz-score { font-family:'Space Mono',monospace; font-size:0.76rem; color: var(--accent); }
+
+  .notes-layout { max-width:900px; margin: 0 auto; }
+  .notes-toolbar { display:flex; gap:0.8rem; margin-bottom:1.4rem; flex-wrap:wrap; }
+  .select-styled { background: var(--card); border:1px solid var(--border); color: var(--text); padding:0.5rem 0.9rem; border-radius:8px; font-family:'Syne',sans-serif; font-size:0.8rem; }
+  .notes-textarea { width:100%; min-height:240px; background: var(--card); border:1px solid var(--border); border-radius:12px; padding:1.3rem; font-family:'JetBrains Mono',monospace; font-size:0.84rem; color: var(--text); resize:vertical; outline:none; line-height:1.8; }
+  .notes-textarea:focus { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+  .notes-list { display:flex; flex-direction:column; gap:0.9rem; margin-top:1.4rem; }
+  .note-item { background: var(--card); border:1px solid var(--border); border-radius:10px; padding:1.1rem 1.4rem; position:relative; }
+  .note-item-tag { font-family:'Space Mono',monospace; font-size:0.63rem; color: var(--accent2); margin-bottom:0.45rem; }
+  .note-item-text { font-size:0.83rem; line-height:1.7; white-space:pre-wrap; }
+  .note-item-del { position:absolute; top:0.8rem; right:0.8rem; background:none; border:none; color: var(--muted); cursor:pointer; font-size:0.9rem; }
+  .note-item-del:hover { color: var(--accent3); }
+
+  .roadmap-timeline { max-width:800px; margin: 2rem auto 0; position:relative; }
+  .roadmap-timeline::before { content:''; position:absolute; left:24px; top:0; bottom:0; width:2px; background: var(--border); }
+  .roadmap-item { display:flex; gap:1.5rem; margin-bottom:1.8rem; position:relative; }
+  .roadmap-dot { width:48px; height:48px; border-radius:50%; border:2px solid var(--border); background: var(--card); display:flex; align-items:center; justify-content:center; font-size:1.2rem; flex-shrink:0; z-index:1; }
+  .roadmap-dot.done { border-color: var(--accent2); background: color-mix(in srgb, var(--accent2) 12%, transparent); }
+  .roadmap-dot.current { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .roadmap-content { background: var(--card); border:1px solid var(--border); border-radius:12px; padding:1.1rem 1.4rem; flex:1; cursor:pointer; }
+  .roadmap-content:hover { border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+  .roadmap-stage { font-family:'Space Mono',monospace; font-size:0.62rem; color: var(--muted); margin-bottom:0.3rem; letter-spacing:1px; }
+  .roadmap-title { font-weight:700; font-size:0.92rem; margin-bottom:0.3rem; }
+  .roadmap-desc { font-size:0.78rem; color: var(--muted); line-height:1.5; }
+
+  footer { padding:2.5rem 2rem; border-top:1px solid var(--border); text-align:center; color: var(--muted); font-size:0.76rem; font-family:'Space Mono',monospace; }
+  footer span { color: var(--accent); }
+
+  @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+  .fade-up { animation: fadeUp 0.55s ease forwards; opacity:0; }
+  .fade-up:nth-child(1) { animation-delay:0.05s; } .fade-up:nth-child(2) { animation-delay:0.15s; }
+  .fade-up:nth-child(3) { animation-delay:0.25s; } .fade-up:nth-child(4) { animation-delay:0.35s; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { display:inline-block; width:11px; height:11px; border:2px solid var(--muted); border-top-color: var(--accent); border-radius:50%; animation: spin 0.8s linear infinite; vertical-align:middle; margin-right:0.4rem; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.55; } }
+  .blink { animation: pulse 2.5s infinite; }
+
+  @media (max-width:800px) { .content-layout { grid-template-columns: 1fr; } .content-sidebar { display:none; } .editor-layout { grid-template-columns: 1fr; } .section-title { font-size:1.7rem; } }
+  @media (max-width:560px) { .nav-links { display:none; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo" data-testid="nav-logo" onclick="showSection('hero')">JS<span>Craft</span></div>
+  <div class="nav-links">
+    <button data-testid="nav-home" id="nav-home" onclick="showSection('hero')">Home</button>
+    <button data-testid="nav-lectures" id="nav-lectures" onclick="showSection('lectures')">Lectures</button>
+    <button data-testid="nav-playground" id="nav-playground" onclick="showSection('playground')">Practice</button>
+    <button data-testid="nav-hackathon" id="nav-hackathon" onclick="showSection('hackathon')">⚡ Hackathon</button>
+    <button data-testid="nav-cheatsheet" id="nav-cheatsheet" onclick="showSection('cheatsheet')">Cheatsheet</button>
+    <button data-testid="nav-quiz" id="nav-quiz" onclick="showSection('quiz-section')">Quiz</button>
+    <button data-testid="nav-notes" id="nav-notes" onclick="showSection('notes-section')">Notes</button>
+    <button data-testid="nav-roadmap" id="nav-roadmap" onclick="showSection('roadmap')">Roadmap</button>
+  </div>
+  <div class="nav-right">
+    <button class="theme-toggle" id="theme-toggle" data-testid="theme-toggle" onclick="toggleTheme()" title="Toggle theme">🌙</button>
+    <div class="nav-progress" id="progress-display" data-testid="progress-display">0 / 4 done</div>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-badge blink">4 Lectures · Live Editor · Hackathon Runtime · Quiz</div>
+  <h1 class="hero-title fade-up">Master<br><span class="l2">JavaScript</span><span class="l3">from zero to functional</span></h1>
+  <p class="hero-desc fade-up">JS ki history se lekar loops, strings, operators tak — sab kuch ek jagah. Plus a built-in Python-powered JS runtime that verifies hackathon test cases live.</p>
+  <div class="hero-cta fade-up">
+    <button class="btn-primary" data-testid="hero-start-btn" onclick="showSection('lectures')">Start Learning →</button>
+    <button class="btn-ghost" data-testid="hero-editor-btn" onclick="showSection('playground')">Open Editor</button>
+    <button class="btn-ghost" data-testid="hero-hackathon-btn" onclick="showSection('hackathon')">⚡ Hackathon Runtime</button>
+  </div>
+  <div class="hero-stats fade-up">
+    <div><div class="stat-num">4</div><div class="stat-label">Total Lectures</div></div>
+    <div><div class="stat-num">5</div><div class="stat-label">Hackathon Tests</div></div>
+    <div><div class="stat-num">15</div><div class="stat-label">Quiz Questions</div></div>
+    <div><div class="stat-num" id="hero-streak">0</div><div class="stat-label">Topics Completed</div></div>
+  </div>
+</section>
+
+<section id="lectures">
+  <div class="progress-section">
+    <div class="progress-label" id="prog-label">PROGRESS — 0 of 4 lectures completed</div>
+    <div class="progress-bar-track"><div class="progress-bar-fill" id="prog-bar"></div></div>
+  </div>
+  <div style="padding-top:2.5rem;">
+    <div class="section-header">
+      <div class="section-tag">// ALL LECTURES</div>
+      <h2 class="section-title">Your Learning <span>Path</span></h2>
+    </div>
+    <div class="lecture-grid" id="lecture-grid" data-testid="lecture-grid"></div>
+  </div>
+</section>
+
+<section id="content-view">
+  <div class="content-layout">
+    <aside class="content-sidebar">
+      <div class="sidebar-lec-title" id="sidebar-lec-title"></div>
+      <ul class="sidebar-toc" id="sidebar-toc"></ul>
+      <button class="btn-ghost" style="width:100%;" onclick="showSection('lectures')">← Back to Lectures</button>
+      <button class="btn-ghost" style="width:100%;margin-top:0.6rem;" onclick="showSection('playground')">▶ Practice Code</button>
+    </aside>
+    <div class="content-main">
+      <div class="content-header">
+        <div class="content-lec-num" id="c-num"></div>
+        <h2 class="content-lec-title" id="c-title"></h2>
+      </div>
+      <div class="content-body" id="c-body"></div>
+      <div class="content-nav">
+        <button class="btn-ghost" id="prev-btn" onclick="navigateLecture(-1)">← Prev</button>
+        <button class="mark-done-btn" id="mark-btn" data-testid="mark-done-btn" onclick="markDone()">Mark Complete ✓</button>
+        <button class="btn-primary" id="next-btn" onclick="navigateLecture(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="playground">
+  <div class="editor-container">
+    <div class="section-header">
+      <div class="section-tag">// PRACTICE EDITOR</div>
+      <h2 class="section-title">Write &amp; <span>Run</span> Code</h2>
+      <p style="color:var(--muted);font-size:0.8rem;margin-top:0.4rem;">Ctrl+Enter to run · Toggle to use Python runtime</p>
+    </div>
+    <div style="margin-top:1rem;display:flex;gap:0.8rem;align-items:center;flex-wrap:wrap;">
+      <div class="section-tag" style="margin-bottom:0;">QUICK CHALLENGES:</div>
+      <label class="engine-toggle"><input type="checkbox" id="use-backend-engine" data-testid="use-backend-engine"/> Use Python runtime</label>
+    </div>
+    <div class="challenges-strip" id="challenges-strip"></div>
+    <div class="editor-layout">
+      <div class="editor-panel">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="e-dot d-red"></div><div class="e-dot d-yellow"></div><div class="e-dot d-green"></div></div>
+          <span class="editor-label">EDITOR.js</span>
+          <button class="run-btn" data-testid="run-btn" onclick="runCode()">▶ RUN</button>
+        </div>
+        <textarea id="code-editor" data-testid="code-editor" spellcheck="false">// Welcome to JSCraft Editor!
+let name = "Coder";
+console.log(`Namaste, ${name}!`);
+
+let nums = [3, 7, 15, 2, 9, 42];
+console.log("Max:", Math.max(...nums));
+console.log("Sum:", nums.reduce((a,b)=>a+b, 0));</textarea>
+      </div>
+      <div class="editor-panel">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="e-dot d-red"></div><div class="e-dot d-yellow"></div><div class="e-dot d-green"></div></div>
+          <span class="editor-label">OUTPUT</span>
+          <button class="run-btn" onclick="clearOutput()" style="background:transparent;border:1px solid var(--border);color:var(--muted);">✕ Clear</button>
+        </div>
+        <div id="output-panel" data-testid="output-panel"><span class="output-line info">// Output yahaan aayega...</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="hackathon">
+  <div class="hack-wrap">
+    <div class="section-header">
+      <div class="section-tag">// HACKATHON · JS RUNTIME</div>
+      <h2 class="section-title">Python-Powered <span>JS Runtime</span></h2>
+      <p style="color:var(--muted);font-size:0.86rem;margin-top:0.5rem;max-width:700px;line-height:1.65;">Hackathon goal: build a runtime in a <strong style="color:var(--accent)">non-JS language</strong> that can execute JavaScript. The backend is FastAPI (Python) hosting QuickJS (C). 5 test cases below — click ▶ Run All Tests.</p>
+    </div>
+    <div class="hack-hero-card">
+      <div class="hack-engine"><strong>Engine:</strong> QuickJS (C) via Python · FastAPI<br><strong>Endpoint:</strong> POST /api/runtime/run-tests<br><strong>Supports:</strong> let/const, arrows, spread, template literals, classes, Math…</div>
+      <div style="display:flex;gap:0.7rem;align-items:center;flex-wrap:wrap;">
+        <div class="hack-score-pill" id="hack-score" data-testid="hack-score">— / 100</div>
+        <button class="btn-primary" id="hack-run-all-btn" data-testid="hack-run-all-btn" onclick="runHackTests()">▶ Run All Tests</button>
+      </div>
+    </div>
+    <div class="hack-tests" id="hack-tests" data-testid="hack-tests"></div>
+    <div class="hack-custom">
+      <div class="hack-custom-head">
+        <div><div class="section-tag" style="margin-bottom:0.2rem;">// CUSTOM RUNNER</div><div style="font-size:0.8rem;color:var(--muted);">Write JS — executes on backend Python runtime</div></div>
+        <button class="run-btn" data-testid="hack-custom-run-btn" onclick="runHackCustom()">▶ EXECUTE</button>
+      </div>
+      <div class="hack-custom-grid">
+        <div class="hack-custom-pane">
+          <div><span class="hack-pane-label">JS Code</span></div>
+          <textarea id="hack-code" data-testid="hack-code" spellcheck="false">const greet = (who) => `Hello, ${who}!`;
+console.log(greet("Hackathon"));
+
+const nums = [1, 2, 3, 4, 5];
+const sq = nums.map(n => n * n);
+console.log("Squared:", sq.join(", "));
+console.log("Sum:", sq.reduce((a,b)=>a+b, 0));
+
+class Counter { constructor() { this.n = 0; } inc() { return ++this.n; } }
+const c = new Counter();
+console.log(c.inc(), c.inc(), c.inc());</textarea>
+        </div>
+        <div class="hack-custom-pane">
+          <div><span class="hack-pane-label">Output (Python runtime)</span></div>
+          <div id="hack-output" data-testid="hack-output"><span style="color:var(--muted);font-style:italic;">// Click EXECUTE — runs through QuickJS...</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="cheatsheet">
+  <div class="section-header"><div class="section-tag">// QUICK REFERENCE</div><h2 class="section-title">JS <span>Cheatsheet</span></h2></div>
+  <div class="cheat-grid" id="cheat-grid"></div>
+</section>
+
+<section id="quiz-section">
+  <div class="section-header"><div class="section-tag">// TEST YOURSELF</div><h2 class="section-title">Knowledge <span>Quiz</span></h2></div>
+  <div class="quiz-card">
+    <div class="quiz-progress"><div class="quiz-progress-fill" id="quiz-prog-fill"></div></div>
+    <div class="quiz-q-num" id="q-num">Question 1 / 15</div>
+    <div class="quiz-question" id="q-text"></div>
+    <div class="quiz-options" id="q-options" data-testid="quiz-options"></div>
+    <div class="quiz-feedback" id="q-feedback"></div>
+    <div class="quiz-nav">
+      <div class="quiz-score" id="q-score">Score: 0</div>
+      <button class="btn-primary" id="next-q-btn" onclick="nextQuestion()" style="display:none;">Next →</button>
+    </div>
+  </div>
+</section>
+
+<section id="notes-section">
+  <div class="notes-layout">
+    <div class="section-header"><div class="section-tag">// MY NOTES</div><h2 class="section-title">Personal <span>Notes</span></h2></div>
+    <div class="notes-toolbar">
+      <select class="select-styled" id="note-tag">
+        <option>General</option><option>Lecture 1</option><option>Lecture 2</option><option>Lecture 3</option><option>Lecture 4</option><option>Hackathon</option><option>Doubt</option><option>Code Snippet</option>
+      </select>
+      <button class="btn-primary" data-testid="save-note-btn" onclick="saveNote()" style="padding:0.5rem 1.2rem;">+ Save Note</button>
+      <button class="btn-ghost" onclick="clearAllNotes()" style="padding:0.5rem 1rem;font-size:0.76rem;">Clear All</button>
+    </div>
+    <textarea class="notes-textarea" id="note-input" data-testid="note-input" placeholder="Notes, doubts, ya code snippets yahaan likho..."></textarea>
+    <div class="notes-list" id="notes-list" data-testid="notes-list"></div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <div class="section-header"><div class="section-tag">// LEARNING ROADMAP</div><h2 class="section-title">Your <span>Journey</span></h2></div>
+  <div class="roadmap-timeline" id="roadmap-items"></div>
+</section>
+
+<footer>Built for <span>JavaScript learners</span> · JSCraft © 2026 · <span>Python-powered runtime inside</span> 🚀</footer>
+
+<script src="/jscraft.js"></script>
+</body>
+</html>
