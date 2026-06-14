@@ -1,7 +1,6 @@
 from fastapi import FastAPI, APIRouter
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
-from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
@@ -11,11 +10,6 @@ import quickjs
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
-
-mongo_url = os.environ.get('MONGO_URL', '').strip()
-db_name = os.environ.get('DB_NAME', '').strip()
-client = AsyncIOMotorClient(mongo_url) if mongo_url else None
-db = client[db_name] if (client and db_name) else None
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -28,7 +22,7 @@ api_router = APIRouter(prefix="/api")
 # JavaScript code inside the engine*. It cannot reach Python state, the
 # filesystem, or the network from inside the JS world. We additionally enforce:
 #   • a wall-clock time limit  (set_time_limit)
-#   • a memory cap            (set_memory_limit)
+#   • a memory cap             (set_memory_limit)
 # Replacing these calls with `ast.literal_eval` / `json.loads` would make it
 # impossible to execute JavaScript, which is the entire purpose of this service.
 # ─────────────────────────────────────────────────────────────────────────────
@@ -186,9 +180,3 @@ app.add_middleware(CORSMiddleware, allow_credentials=True,
                    allow_methods=["*"], allow_headers=["*"])
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-@app.on_event("shutdown")
-async def shutdown_db_client():
-    if client is not None:
-        client.close()
